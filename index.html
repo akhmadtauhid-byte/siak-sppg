@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SIAK-SPPG</title>
+<style>
+:root{--bg:#f4f7f6;--card:#fff;--ink:#12302c;--mut:#5f7a75;--line:#d9e4e1;--pri:#0f766e;--pri2:#115e59;--bad:#b42318;--ok:#067647;--warn:#b54708;--soft:#e6f4f1}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1b19;--card:#16282a;--ink:#e4f1ee;--mut:#9ab8b2;--line:#27413f;--pri:#2dd4bf;--pri2:#5eead4;--bad:#f97066;--ok:#47cd89;--warn:#fdb022;--soft:#17332f}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+h1,h2,h3{margin:0 0 10px}h2{font-size:20px}h3{font-size:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);min-height:40px}
+textarea{min-height:60px}
+button{cursor:pointer;border:0;border-radius:8px;padding:9px 14px;background:var(--pri);color:#fff;min-height:40px;font-weight:600}
+button.sec{background:transparent;color:var(--pri);border:1px solid var(--pri)}
+button.bad{background:var(--bad)}button.sm{padding:4px 9px;min-height:30px;font-size:13px}
+button:disabled{opacity:.5}
+#login{max-width:360px;margin:12vh auto;padding:24px;background:var(--card);border-radius:14px;border:1px solid var(--line)}
+#login h1{color:var(--pri)}
+#app{display:flex;min-height:100vh}
+#side{width:240px;background:var(--card);border-right:1px solid var(--line);padding:12px;overflow:auto;flex:none}
+#side .brand{font-weight:800;color:var(--pri);font-size:18px;padding:6px 8px}
+#side .brand small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+#side .grp{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:14px 8px 4px}
+#side a{display:block;padding:8px 10px;border-radius:8px;color:var(--ink);text-decoration:none;cursor:pointer}
+#side a:hover{background:var(--soft)}#side a.on{background:var(--pri);color:#fff}
+#wrap{flex:1;min-width:0}
+#top{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+#top .sp{flex:1}#menu{display:none}
+#main{padding:16px;max-width:1200px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.f{display:block}.f span{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}
+.kpi{background:var(--soft);border-radius:10px;padding:10px 12px}.kpi b{display:block;font-size:19px}.kpi small{color:var(--mut)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.tw{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;background:var(--soft);position:sticky;top:0}
+td.n,th.n{text-align:right;white-space:nowrap}tr.tot td{font-weight:700;background:var(--soft)}
+.badge{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;background:var(--soft);color:var(--pri)}
+.badge.bad{background:#fee4e2;color:var(--bad)}.badge.ok{background:#d1fadf;color:var(--ok)}.badge.warn{background:#fef0c7;color:var(--warn)}
+.alert{padding:9px 12px;border-radius:8px;background:#fef0c7;color:#7a2e0e;margin-bottom:8px}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--pri)}
+.chart{display:flex;align-items:flex-end;gap:3px;height:120px;border-bottom:1px solid var(--line)}
+.chart div{flex:1;background:var(--pri);border-radius:3px 3px 0 0;min-width:4px;position:relative}
+.mut{color:var(--mut)}.neg{color:var(--bad)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:50;display:flex;flex-direction:column;gap:6px}
+#toast div{background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px}#toast div.e{background:var(--bad);color:#fff}
+#busy{position:fixed;top:0;left:0;right:0;height:3px;background:var(--pri);z-index:60;display:none}
+.modalbg{position:fixed;inset:0;background:#0007;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(--card);border-radius:12px;padding:18px;max-width:420px;width:100%}
+.print-head{display:none}.sign{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center;margin-top:34px;font-size:13px}.sign div{padding-top:60px}
+@media(max-width:820px){#side{position:fixed;inset:0 auto 0 0;z-index:30;transform:translateX(-100%);transition:.2s}#side.open{transform:none}#menu{display:inline-block}.two{grid-template-columns:1fr}#main{padding:10px}}
+@media print{#side,#top,.noprint,#toast{display:none!important}body{background:#fff;color:#000}.card{border:0;padding:0}.print-head{display:block;text-align:center;margin-bottom:12px}#main{padding:0}th{position:static}}
+</style>
+</head>
+<body>
+<div id="busy"></div>
+<div id="login">
+  <h1>SIAK-SPPG</h1>
+  <p class="mut">Sistem Akuntansi Terintegrasi SPPG — Program Makan Bergizi Gratis</p>
+  <form id="lf">
+    <label class="f"><span>Username</span><input name="username" autocomplete="username" required></label><br>
+    <label class="f"><span>PIN</span><input name="pin" type="password" inputmode="numeric" autocomplete="current-password" required></label><br>
+    <button type="submit" style="width:100%">Masuk</button>
+  </form>
+</div>
+<div id="app" hidden>
+  <nav id="side"></nav>
+  <div id="wrap">
+    <div id="top"><button id="menu" class="sec sm">☰</button><b id="ttl"></b><span class="sp"></span><span id="who" class="mut"></span><button class="sec sm" id="bpin">Ganti PIN</button><button class="sec sm" id="bout">Keluar</button></div>
+    <div id="main"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbztSHEjN2DzyM7byTpFTommTOP50SJVtZD5W7tt2_1qKwdGwIEZf1qXcQB74U8nT_Vm/exec'; // <-- RESTORE: tempel URL Web App Apps Script (berakhiran /exec)
+const KOMP = ['Bahan Baku', 'Operasional', 'Insentif'];
+const S = { token: null, user: null, setting: {}, akun: [], f: null };
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rp = n => { n = Number(n) || 0; const s = Math.abs(n).toLocaleString('id-ID', { maximumFractionDigits: 2 }); return n < 0 ? '(' + s + ')' : s; };
+const pad = n => String(n).padStart(2, '0');
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const month = () => today().slice(0, 7);
+const ALL = ['Admin', 'Akuntan', 'Operator', 'Pimpinan'], TX = ['Admin', 'Akuntan', 'Operator'], ACC = ['Admin', 'Akuntan'], ADM = ['Admin'];
+
+/* ---------- util ---------- */
+let busyN = 0;
+function busy(d) { busyN += d; $('#busy').style.display = busyN > 0 ? 'block' : 'none'; }
+function toast(m, err) { const d = document.createElement('div'); d.textContent = m; if (err) d.className = 'e'; $('#toast').appendChild(d); setTimeout(() => d.remove(), err ? 6000 : 2800); }
+async function api(action, p) {
+  if (API_URL === 'API_URL') throw new Error('API_URL belum diisi di index.html');
+  busy(1);
+  try {
+    const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, p: p || {}, token: S.token }) });
+    const j = await r.json();
+    if (!j.ok) { if (/Sesi berakhir/.test(j.error)) logout(true); throw new Error(j.error); }
+    return j.data;
+  } finally { busy(-1); }
+}
+function sel(name, opts, val, extra) {
+  return '<select name="' + name + '" ' + (extra || '') + '>' + opts.map(o => { const v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '"' + (String(v) === String(val) ? ' selected' : '') + '>' + esc(l) + '</option>'; }).join('') + '</select>';
+}
+const fld = (l, h) => '<label class="f"><span>' + l + '</span>' + h + '</label>';
+const inp = (n, l, t, v, ex) => fld(l, '<input name="' + n + '" type="' + (t || 'text') + '" value="' + esc(v == null ? '' : v) + '" ' + (t === 'number' ? 'step="any" inputmode="decimal" ' : '') + (ex || '') + '>');
+const optKas = () => S.akun.filter(a => a.kas === 'Y' && a.aktif !== 'N').map(a => [a.kode, a.nama]);
+const optBeban = () => S.akun.filter(a => a.kelompok === 'Beban' && a.aktif !== 'N').map(a => [a.kode, a.kode + ' · ' + a.nama]);
+const optItem = () => S.akun.filter(a => (a.kelompok === 'Beban' || a.kelompok === 'Aset') && a.kas !== 'Y' && a.aktif !== 'N' && a.saldo_normal === 'D').map(a => [a.kode, a.kode + ' · ' + a.nama]);
+const optAll = () => S.akun.filter(a => a.aktif !== 'N').map(a => [a.kode, a.kode + ' · ' + a.nama]);
+const akunNama = k => { const a = S.akun.find(x => x.kode === k); return a ? a.nama : k; };
+function tbl(cols, rows, foot) {
+  return '<div class="tw"><table><thead><tr>' + cols.map(c => '<th class="' + (c[2] || '') + '">' + c[0] + '</th>').join('') + '</tr></thead><tbody>' +
+    (rows.length ? rows.map(r => '<tr class="' + (r._cls || '') + '">' + cols.map(c => '<td class="' + (c[2] || '') + '">' + c[1](r) + '</td>').join('') + '</tr>').join('') : '<tr><td colspan="' + cols.length + '" class="mut">Belum ada data</td></tr>') +
+    (foot || '') + '</tbody></table></div>';
+}
+function bind(form, fn) {
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const b = form.querySelector('button[type=submit]'); if (b) b.disabled = true;
+    try { await fn(Object.fromEntries(new FormData(form)), form); } catch (err) { toast(err.message, true); } finally { if (b) b.disabled = false; }
+  });
+}
+function csv(name, rows) {
+  const t = rows.map(r => r.map(c => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + t], { type: 'text/csv' })); a.download = name + '.csv'; a.click();
+}
+function modal(html) {
+  const d = document.createElement('div'); d.className = 'modalbg'; d.innerHTML = '<div class="modal">' + html + '</div>'; document.body.appendChild(d);
+  d.close = () => d.remove(); return d;
+}
+const voidBtn = (sumber, id, st) => (S.user && ACC.indexOf(S.user.role) >= 0 && st !== 'Void') ? '<button class="bad sm" data-void="' + sumber + '|' + id + '">Batal</button>' : '';
+const stBadge = s => s === 'Void' ? '<span class="badge bad">Batal</span>' : s === 'Lunas' ? '<span class="badge ok">Lunas</span>' : s ? '<span class="badge warn">' + esc(s) + '</span>' : '';
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-void]'); if (!b) return;
+  const [sumber, id] = b.dataset.void.split('|');
+  const alasan = prompt('Alasan pembatalan (jurnal pembalik otomatis dibuat):');
+  if (!alasan) return;
+  try { await api('voidTx', { sumber, id, alasan }); toast('Transaksi dibatalkan'); go(S.cur); } catch (err) { toast(err.message, true); }
+});
+
+/* ---------- auth & nav ---------- */
+$('#lf').addEventListener('submit', async e => {
+  e.preventDefault(); const f = Object.fromEntries(new FormData(e.target));
+  try {
+    const r = await api('login', f); S.token = r.token; S.user = r.user; S.setting = r.setting;
+    try { sessionStorage.setItem('siak', JSON.stringify({ t: r.token, u: r.user })); } catch (x) { }
+    await boot();
+    if (r.mustChangePin) { toast('Demi keamanan, ganti PIN bawaan sekarang'); changePin(); }
+  } catch (err) { toast(err.message, true); }
+});
+function logout(silent) { try { sessionStorage.removeItem('siak'); } catch (x) { } if (!silent && S.token) api('logout').catch(() => { }); S.token = null; $('#app').hidden = true; $('#login').hidden = false; }
+$('#bout').onclick = () => logout();
+$('#bpin').onclick = changePin;
+$('#menu').onclick = () => $('#side').classList.toggle('open');
+function changePin() {
+  const m = modal('<h3>Ganti PIN</h3><form id="pf"><label class="f"><span>PIN lama</span><input name="lama" type="password" inputmode="numeric" required></label><br><label class="f"><span>PIN baru (6-8 digit)</span><input name="baru" type="password" inputmode="numeric" required></label><br><div class="row"><button type="submit">Simpan</button><button type="button" class="sec" id="pc">Tutup</button></div></form>');
+  m.querySelector('#pc').onclick = m.close;
+  bind(m.querySelector('#pf'), async v => { await api('changePin', v); toast('PIN diganti'); m.close(); });
+}
+const NAV = [
+  ['Beranda', [['dashboard', 'Dashboard', ALL]]],
+  ['Input Transaksi', [['penerimaan', 'Penerimaan Dana BGN', ACC], ['pembelian', 'Pembelian Bahan', TX], ['bayarhutang', 'Bayar Hutang', TX], ['biaya', 'Biaya Operasional', TX], ['honor', 'Honor Relawan', TX], ['porsi', 'Porsi Harian', TX], ['transfer', 'Transfer Kas/Bank', ACC]]],
+  ['Pembukuan', [['jurnal', 'Jurnal & Jurnal Umum', ALL], ['aset', 'Aset & Penyusutan', ALL]]],
+  ['Laporan', [['bukubesar', 'Buku Kas / Buku Besar', ALL], ['neracasaldo', 'Neraca Saldo', ALL], ['labarugi', 'Laporan Surplus/Defisit', ALL], ['neraca', 'Neraca', ALL], ['aruskas', 'Arus Kas', ALL], ['lpj', 'LPJ Dana BGN', ALL], ['rhutang', 'Umur Hutang', ALL], ['rporsi', 'Rekap Porsi', ALL]]],
+  ['Master Data', [['supplier', 'Supplier', ACC], ['relawan', 'Relawan', ACC], ['tarif', 'Tarif per Porsi', ADM], ['akun', 'Daftar Akun (COA)', ADM]]],
+  ['Admin', [['users', 'Pengguna', ADM], ['pengaturan', 'Pengaturan', ADM], ['audit', 'Jejak Audit', ADM]]]
+];
+const TITLES = {};
+function buildNav() {
+  $('#side').innerHTML = '<div class="brand">SIAK-SPPG<small>' + esc(S.setting.nama_sppg) + '</small></div>' + NAV.map(g => {
+    const it = g[1].filter(x => x[2].indexOf(S.user.role) >= 0); if (!it.length) return '';
+    return '<div class="grp">' + g[0] + '</div>' + it.map(x => { TITLES[x[0]] = x[1]; return '<a data-v="' + x[0] + '">' + x[1] + '</a>'; }).join('');
+  }).join('');
+  $('#side').querySelectorAll('a').forEach(a => a.onclick = () => { $('#side').classList.remove('open'); go(a.dataset.v); });
+}
+async function boot() {
+  $('#login').hidden = true; $('#app').hidden = false;
+  $('#who').textContent = S.user.nama + ' · ' + S.user.role;
+  S.akun = await api('daftarAkun'); S.setting = await api('getPengaturan');
+  S.f = { dari: month() + '-01', sampai: today() };
+  buildNav(); go('dashboard');
+}
+async function go(v) {
+  S.cur = v; $('#ttl').textContent = TITLES[v] || '';
+  document.querySelectorAll('#side a').forEach(a => a.classList.toggle('on', a.dataset.v === v));
+  $('#main').innerHTML = '<div class="card mut">Memuat…</div>';
+  try { await VIEWS[v](); } catch (err) { $('#main').innerHTML = '<div class="card"><b class="neg">Gagal:</b> ' + esc(err.message) + '</div>'; }
+  window.scrollTo(0, 0);
+}
+const main = () => $('#main');
+function filterBar(single) {
+  return '<form class="card row noprint" id="ff">' + (single ? '' : inp('dari', 'Dari', 'date', S.f.dari)) + inp('sampai', single ? 'Per tanggal' : 'Sampai', 'date', S.f.sampai) + '<button type="submit">Terapkan</button></form>';
+}
+function bindFilter() { const f = $('#ff'); if (f) bind(f, v => { if (v.dari) S.f.dari = v.dari; S.f.sampai = v.sampai; go(S.cur); }); }
+function printHead(t, sub) {
+  return '<div class="print-head"><b>' + esc(S.setting.nama_sppg) + '</b><br>' + esc(S.setting.alamat) + '<br><b>' + t + '</b><br>' + sub + '</div>';
+}
+function repBar(name, rows) { return '<div class="row noprint" style="margin-bottom:10px"><button class="sec sm" onclick="window.print()">Cetak / PDF</button><button class="sec sm" id="bcsv">Unduh CSV</button></div>'; }
+function bindCsv(name, rows) { const b = $('#bcsv'); if (b) b.onclick = () => csv(name, rows); }
+
+/* ---------- generic tx view ---------- */
+async function txView(c) {
+  const rows = (await api('list', { sheet: c.sheet, dari: S.f.dari, sampai: S.f.sampai })).rows;
+  main().innerHTML = '<h2>' + c.title + '</h2>' + (c.canInput === false ? '' : '<div class="card noprint"><h3>Input baru</h3><form id="tf">' + c.form() + '<br><button type="submit">Simpan</button></form></div>') + filterBar() + '<div class="card">' + tbl(c.cols, rows) + '</div>';
+  bindFilter();
+  const f = $('#tf'); if (f) { if (c.after) c.after(f); bind(f, async v => { const r = await api(c.save, c.prep ? c.prep(v, f) : v); toast('Tersimpan' + (r.no_bukti ? ' · ' + r.no_bukti : '')); go(S.cur); }); }
+}
+const D = r => r.tanggal;
+
+/* ---------- views ---------- */
+const VIEWS = {
+  async dashboard() {
+    const m = S.dm || month();
+    const d = await api('dashboard', { bulan: m });
+    const maxB = Math.max(1, ...d.harian.map(x => x.beban)), maxP = Math.max(1, ...d.harian.map(x => x.porsi));
+    main().innerHTML = '<div class="row" style="margin-bottom:10px"><h2 style="margin:0;flex:1">Dashboard ' + esc(S.setting.nama_sppg) + '</h2><form id="mf" class="row">' + inp('bulan', 'Bulan', 'month', m) + '<button class="sec" type="submit">Tampilkan</button></form></div>' +
+      d.peringatan.map(p => '<div class="alert">⚠ ' + esc(p) + '</div>').join('') +
+      '<div class="grid" style="margin-bottom:14px">' + d.kas.map(k => '<div class="kpi"><small>' + esc(k.nama) + '</small><b class="' + (k.saldo < 0 ? 'neg' : '') + '">' + rp(k.saldo) + '</b></div>').join('') +
+      '<div class="kpi"><small>Total kas & bank</small><b>' + rp(d.total_kas) + '</b></div><div class="kpi"><small>Hutang usaha</small><b>' + rp(d.hutang) + '</b></div></div>' +
+      '<div class="grid" style="margin-bottom:14px"><div class="kpi"><small>Dana diterima</small><b>' + rp(d.dana) + '</b></div><div class="kpi"><small>Total beban</small><b>' + rp(d.beban) + '</b></div><div class="kpi"><small>Surplus/(Defisit)</small><b class="' + (d.surplus < 0 ? 'neg' : '') + '">' + rp(d.surplus) + '</b></div><div class="kpi"><small>Porsi / hari operasi</small><b>' + rp(d.porsi) + ' / ' + d.hari_operasi + '</b></div><div class="kpi"><small>Biaya per porsi</small><b>' + rp(d.biaya_per_porsi) + '</b></div></div>' +
+      '<div class="card"><h3>Penyerapan per komponen (bulan ini)</h3>' + tbl([['Komponen', r => r.komponen], ['Dana diterima', r => rp(r.dana), 'n'], ['Hak (porsi × tarif)', r => rp(r.hak), 'n'], ['Realisasi beban', r => rp(r.beban), 'n'], ['Biaya/porsi', r => rp(r.per_porsi), 'n'], ['Sisa kumulatif', r => '<span class="' + (r.sisa_kumulatif < 0 ? 'neg' : '') + '">' + rp(r.sisa_kumulatif) + '</span>', 'n'], ['Serapan', r => '<div class="bar"><i style="width:' + Math.min(100, r.dana ? r.beban / r.dana * 100 : 0) + '%"></i></div>']], d.komponen) + '</div>' +
+      '<div class="two"><div class="card"><h3>Porsi harian</h3><div class="chart">' + d.harian.map(x => '<div title="' + x.tanggal + ': ' + rp(x.porsi) + ' porsi" style="height:' + Math.max(2, x.porsi / maxP * 100) + '%"></div>').join('') + '</div><small class="mut">' + d.harian.length + ' hari tercatat</small></div>' +
+      '<div class="card"><h3>Beban harian</h3><div class="chart">' + d.harian.map(x => '<div title="' + x.tanggal + ': ' + rp(x.beban) + '" style="height:' + Math.max(2, x.beban / maxB * 100) + '%;background:var(--warn)"></div>').join('') + '</div><small class="mut">' + (d.kunci_sampai ? 'Periode terkunci s/d ' + d.kunci_sampai : 'Belum ada kunci periode') + '</small></div></div>';
+    bind($('#mf'), v => { S.dm = v.bulan; go('dashboard'); });
+  },
+
+  penerimaan: () => txView({
+    title: 'Penerimaan Dana BGN', sheet: 'Penerimaan', save: 'savePenerimaan',
+    form: () => '<div class="grid">' + inp('tanggal', 'Tanggal', 'date', today(), 'required') + fld('Masuk ke rekening', sel('akun_kas', optKas(), '1-1102')) + inp('termin', 'Termin / periode', 'text', '') + inp('no_ref', 'No. referensi / bukti', 'text', '') + inp('bahan', 'Komponen Bahan Baku', 'number', 0) + inp('operasional', 'Komponen Operasional', 'number', 0) + inp('insentif', 'Komponen Insentif Fasilitas', 'number', 0) + inp('uraian', 'Uraian', 'text', '') + '</div><p class="mut">Pisahkan nominal per komponen sesuai rincian pencairan BGN agar LPJ per komponen akurat.</p>',
+    cols: [['Tanggal', D], ['Termin', r => esc(r.termin)], ['Ref', r => esc(r.no_ref)], ['Bahan', r => rp(r.bahan), 'n'], ['Operasional', r => rp(r.operasional), 'n'], ['Insentif', r => rp(r.insentif), 'n'], ['Total', r => '<b>' + rp(r.total) + '</b>', 'n'], ['', r => stBadge(r.status) + ' ' + voidBtn('PENERIMAAN', r.id, r.status)]]
+  }),
+
+  async pembelian() {
+    const [sup, rows] = await Promise.all([api('list', { sheet: 'Supplier' }), api('list', { sheet: 'Pembelian', dari: S.f.dari, sampai: S.f.sampai })]);
+    const so = [['', '— pilih supplier —']].concat(sup.rows.filter(s => s.aktif !== 'N').map(s => [s.id, s.nama]));
+    main().innerHTML = '<h2>Pembelian Bahan & Perlengkapan</h2><div class="card noprint"><h3>Faktur baru</h3><form id="tf"><div class="grid">' + inp('tanggal', 'Tanggal', 'date', today(), 'required') + inp('no_faktur', 'No. faktur / nota', 'text', '') + fld('Supplier terdaftar', sel('supplier_id', so, '')) + inp('supplier_nama', 'atau ketik nama supplier', 'text', '') + fld('Metode', sel('metode', ['Tunai', 'Transfer', 'Kredit'], 'Tunai')) + fld('Bayar dari', sel('akun_kas', optKas(), '1-1103')) + inp('jatuh_tempo', 'Jatuh tempo (kredit)', 'date', '') + inp('pph', 'Pajak dipotong (PPh)', 'number', 0) + '</div><h3 style="margin-top:12px">Rincian item</h3><div id="items"></div><div class="row" style="margin-top:8px"><button type="button" class="sec sm" id="addi">+ Tambah item</button><b id="gt" style="margin-left:auto"></b></div><br>' + inp('catatan', 'Catatan', 'text', '') + '<br><button type="submit">Simpan Faktur</button></form></div>' + filterBar() + '<div class="card">' + tbl([['Tanggal', D], ['Faktur', r => esc(r.no_faktur)], ['Supplier', r => esc(r.supplier_nama)], ['Metode', r => r.metode], ['Subtotal', r => rp(r.subtotal), 'n'], ['PPh', r => rp(r.pph), 'n'], ['Sisa hutang', r => rp(r.sisa), 'n'], ['', r => stBadge(r.status) + ' <button class="sec sm" data-det="' + r.id + '">Rincian</button> ' + voidBtn('PEMBELIAN', r.id, r.status)]], rows.rows) + '</div>';
+    bindFilter();
+    const box = $('#items');
+    const recalc = () => { let t = 0; box.querySelectorAll('.it').forEach(r => { t += (+r.querySelector('[name=qty]').value || 0) * (+r.querySelector('[name=harga]').value || 0); }); $('#gt').textContent = 'Subtotal: Rp ' + rp(t); };
+    const add = () => { const d = document.createElement('div'); d.className = 'grid it'; d.style.marginBottom = '8px'; d.innerHTML = fld('Akun', sel('kode_akun', optItem(), '5-1101')) + inp('uraian', 'Uraian barang', 'text', '') + inp('qty', 'Qty', 'number', 1) + inp('satuan', 'Satuan', 'text', 'kg') + inp('harga', 'Harga satuan', 'number', 0) + '<button type="button" class="bad sm" style="align-self:end">Hapus</button>'; d.querySelector('button').onclick = () => { d.remove(); recalc(); }; d.oninput = recalc; box.appendChild(d); };
+    add(); $('#addi').onclick = add; recalc();
+    bind($('#tf'), async v => {
+      const items = [...box.querySelectorAll('.it')].map(r => ({ kode_akun: r.querySelector('[name=kode_akun]').value, uraian: r.querySelector('[name=uraian]').value, qty: r.querySelector('[name=qty]').value, satuan: r.querySelector('[name=satuan]').value, harga: r.querySelector('[name=harga]').value }));
+      v.items = items; const r = await api('savePembelian', v); toast('Tersimpan · ' + r.no_bukti); go('pembelian');
+    });
+    document.querySelectorAll('[data-det]').forEach(b => b.onclick = async () => {
+      const r = await api('getPembelian', { id: b.dataset.det });
+      const m = modal('<h3>' + esc(r.pembelian.supplier_nama) + ' · ' + esc(r.pembelian.no_faktur) + '</h3>' + tbl([['Akun', x => esc(akunNama(x.kode_akun))], ['Uraian', x => esc(x.uraian)], ['Qty', x => rp(x.qty) + ' ' + esc(x.satuan), 'n'], ['Jumlah', x => rp(x.jumlah), 'n']], r.items) + '<h3 style="margin-top:10px">Pembayaran</h3>' + tbl([['Tanggal', x => x.tanggal], ['Jumlah', x => rp(x.jumlah), 'n'], ['', x => stBadge(x.status)]], r.pembayaran) + '<br><button class="sec" id="mc">Tutup</button>');
+      m.querySelector('#mc').onclick = m.close;
+    });
+  },
+
+  async bayarhutang() {
+    const [h, rows] = await Promise.all([api('hutang'), api('list', { sheet: 'Pembayaran', dari: S.f.dari, sampai: S.f.sampai })]);
+    main().innerHTML = '<h2>Pembayaran Hutang Usaha</h2><div class="card noprint"><h3>Bayar faktur</h3><form id="tf"><div class="grid">' + inp('tanggal', 'Tanggal bayar', 'date', today(), 'required') + fld('Faktur', sel('pembelian_id', h.rows.map(r => [r.id, r.supplier_nama + ' · ' + (r.no_faktur || '-') + ' · sisa ' + rp(r.sisa)]), '')) + fld('Bayar dari', sel('akun_kas', optKas(), '1-1103')) + inp('jumlah', 'Jumlah dibayar', 'number', h.rows[0] ? h.rows[0].sisa : 0) + inp('catatan', 'Catatan', 'text', '') + '</div><br><button type="submit"' + (h.rows.length ? '' : ' disabled') + '>Simpan Pembayaran</button>' + (h.rows.length ? '' : ' <span class="mut">Tidak ada hutang terbuka.</span>') + '</form></div>' + filterBar() + '<div class="card">' + tbl([['Tanggal', D], ['Supplier', r => esc(r.supplier_nama)], ['Faktur', r => esc(r.no_faktur)], ['Jumlah', r => rp(r.jumlah), 'n'], ['', r => stBadge(r.status) + ' ' + voidBtn('PEMBAYARAN', r.id, r.status)]], rows.rows) + '</div>';
+    bindFilter();
+    const f = $('#tf'); const fs = f.pembelian_id; if (fs) fs.onchange = () => { const x = h.rows.find(r => r.id === fs.value); if (x) f.jumlah.value = x.sisa; };
+    bind(f, async v => { const r = await api('savePembayaran', v); toast('Tersimpan · ' + r.no_bukti); go('bayarhutang'); });
+  },
+
+  biaya: () => txView({
+    title: 'Biaya Operasional', sheet: 'Biaya', save: 'saveBiaya',
+    form: () => '<div class="grid">' + inp('tanggal', 'Tanggal', 'date', today(), 'required') + fld('Jenis biaya', sel('kode_akun', optBeban().filter(o => !/^5-/.test(o[0])), '6-1102')) + inp('uraian', 'Uraian', 'text', '', 'required') + inp('penerima', 'Dibayarkan kepada', 'text', '') + fld('Bayar dari', sel('akun_kas', optKas(), '1-1103')) + inp('jumlah', 'Jumlah', 'number', 0, 'required') + '</div><p class="mut">Bahan pangan dicatat lewat menu Pembelian. Insentif fasilitas ke mitra: pilih akun 7-1101.</p>',
+    cols: [['Tanggal', D], ['Jenis', r => esc(akunNama(r.kode_akun))], ['Uraian', r => esc(r.uraian)], ['Penerima', r => esc(r.penerima)], ['Jumlah', r => rp(r.jumlah), 'n'], ['', r => stBadge(r.status) + ' ' + voidBtn('BIAYA', r.id, r.status)]]
+  }),
+
+  async honor() {
+    const [rel, rows] = await Promise.all([api('list', { sheet: 'Relawan' }), api('list', { sheet: 'Penggajian', dari: S.f.dari.slice(0, 7), sampai: S.f.sampai.slice(0, 7) })]);
+    const act = rel.rows.filter(r => r.aktif !== 'N');
+    const bat = {}; rows.rows.forEach(r => { const b = bat[r.batch_id] || (bat[r.batch_id] = { id: r.batch_id, periode: r.periode, tanggal: r.tanggal, n: 0, total: 0, status: r.status }); b.n++; b.total += +r.total; });
+    main().innerHTML = '<h2>Honor Relawan & Tenaga Dapur</h2><div class="card noprint"><h3>Pembayaran honor</h3><form id="tf"><div class="grid">' + inp('periode', 'Periode', 'month', month(), 'required') + inp('tanggal', 'Tanggal bayar', 'date', today(), 'required') + fld('Bayar dari', sel('akun_kas', optKas(), '1-1103')) + '</div><br>' +
+      tbl([['Nama', r => esc(r.nama) + '<div class="mut">' + esc(r.posisi) + '</div>'], ['Hari kerja', r => '<input type="number" data-h="' + r.id + '" value="0" min="0" step="any" style="width:90px">'], ['Tarif/hari', r => '<input type="number" data-t="' + r.id + '" value="' + (+r.tarif_harian || 0) + '" style="width:120px">'], ['Total', r => '<b data-s="' + r.id + '">0</b>', 'n']], act) + '<div class="row" style="margin-top:8px"><b id="gtot" style="margin-left:auto">Total: Rp 0</b></div><br><button type="submit"' + (act.length ? '' : ' disabled') + '>Simpan & Catat Pembayaran</button>' + (act.length ? '' : ' <span class="mut">Isi dulu data di Master Data → Relawan.</span>') + '</form></div>' +
+      '<div class="card"><h3>Riwayat pembayaran</h3>' + tbl([['Periode', r => r.periode], ['Tgl bayar', r => r.tanggal], ['Jml orang', r => r.n, 'n'], ['Total', r => rp(r.total), 'n'], ['', r => stBadge(r.status) + ' ' + voidBtn('PENGGAJIAN', r.id, r.status)]], Object.values(bat)) + '</div>';
+    const f = $('#tf'); const calc = () => { let g = 0; act.forEach(r => { const t = (+f.querySelector('[data-h="' + r.id + '"]').value || 0) * (+f.querySelector('[data-t="' + r.id + '"]').value || 0); f.querySelector('[data-s="' + r.id + '"]').textContent = rp(t); g += t; }); $('#gtot').textContent = 'Total: Rp ' + rp(g); };
+    f.oninput = calc;
+    bind(f, async v => { v.rows = act.map(r => ({ relawan_id: r.id, hari: f.querySelector('[data-h="' + r.id + '"]').value, tarif: f.querySelector('[data-t="' + r.id + '"]').value })); const r = await api('savePenggajian', v); toast('Tersimpan · ' + r.no_bukti); go('honor'); });
+  },
+
+  async porsi() {
+    const t = await api('list', { sheet: 'Tarif' });
+    const kats = [...new Set(t.rows.filter(x => x.aktif !== 'N').map(x => x.kategori))];
+    const dt = S.pd || today();
+    const ex = (await api('list', { sheet: 'Porsi', dari: dt, sampai: dt })).rows;
+    const rek = await api('rekapPorsi', { dari: month() + '-01', sampai: today() });
+    main().innerHTML = '<h2>Porsi Harian (Distribusi)</h2><div class="card noprint"><form id="tf"><div class="grid">' + inp('tanggal', 'Tanggal distribusi', 'date', dt, 'required') + '</div><br>' + tbl([['Kategori penerima', r => esc(r)], ['Jumlah porsi terdistribusi', r => '<input type="number" min="0" step="1" data-k="' + esc(r) + '" value="' + ((ex.find(e => e.kategori === r) || {}).jumlah || 0) + '" style="max-width:160px">']], kats) + '<br>' + inp('catatan', 'Catatan (mis. libur sekolah, menu)', 'text', (ex[0] || {}).catatan || '') + '<br><button type="submit">Simpan Porsi</button> <span class="mut">Isi 0 untuk menghapus entri kategori.</span></form></div>' +
+      '<div class="card"><h3>Rekap bulan berjalan</h3><div class="grid"><div class="kpi"><small>Total porsi</small><b>' + rp(rek.total) + '</b></div><div class="kpi"><small>Hari operasi</small><b>' + rek.hari + '</b></div></div><br>' + tbl([['Kategori', r => esc(r.kategori)], ['Porsi', r => rp(r.jumlah), 'n']], rek.per_kategori) + '</div>';
+    const f = $('#tf'); f.tanggal.onchange = () => { S.pd = f.tanggal.value; go('porsi'); };
+    bind(f, async v => { v.items = kats.map(k => ({ kategori: k, jumlah: f.querySelector('[data-k="' + k.replace(/"/g, '\\"') + '"]').value })); await api('savePorsiHarian', v); toast('Porsi tersimpan'); go('porsi'); });
+  },
+
+  transfer: () => txView({
+    title: 'Transfer Kas / Bank', sheet: 'Transfer', save: 'saveTransfer',
+    form: () => '<div class="grid">' + inp('tanggal', 'Tanggal', 'date', today(), 'required') + fld('Dari', sel('dari', optKas(), '1-1102')) + fld('Ke', sel('ke', optKas(), '1-1103')) + inp('jumlah', 'Jumlah', 'number', 0, 'required') + inp('uraian', 'Uraian', 'text', '') + '</div>',
+    cols: [['Tanggal', D], ['Dari', r => esc(akunNama(r.dari))], ['Ke', r => esc(akunNama(r.ke))], ['Jumlah', r => rp(r.jumlah), 'n'], ['Uraian', r => esc(r.uraian)], ['', r => stBadge(r.status) + ' ' + voidBtn('TRANSFER', r.id, r.status)]]
+  }),
+
+  async jurnal() {
+    const rows = (await api('list', { sheet: 'Jurnal', dari: S.f.dari, sampai: S.f.sampai, limit: 3000 })).rows;
+    const g = {}, ord = []; rows.forEach(r => { if (!g[r.jid]) { g[r.jid] = []; ord.push(r.jid); } g[r.jid].push(r); });
+    const canJU = ACC.indexOf(S.user.role) >= 0;
+    main().innerHTML = '<h2>Jurnal</h2>' + (canJU ? '<details class="card noprint"><summary><b>+ Jurnal umum / penyesuaian / saldo awal</b></summary><br><form id="tf"><div class="grid">' + inp('tanggal', 'Tanggal', 'date', today(), 'required') + fld('Jenis', sel('jenis', [['JURNAL', 'Jurnal umum / penyesuaian'], ['SALDO_AWAL', 'Saldo awal']], 'JURNAL')) + inp('keterangan', 'Keterangan', 'text', '', 'required') + '</div><div id="jl" style="margin-top:10px"></div><div class="row" style="margin-top:8px"><button type="button" class="sec sm" id="al">+ Baris</button><b id="jd" style="margin-left:auto"></b></div><br><button type="submit">Simpan Jurnal</button></form></details>' : '') + filterBar() +
+      '<div class="card">' + tbl([['Tanggal', r => r.tanggal], ['No. bukti', r => esc(r.no_bukti)], ['Akun', r => esc(r.kode_akun + ' ' + akunNama(r.kode_akun))], ['Keterangan', r => esc(r.keterangan)], ['Debit', r => r.debit ? rp(r.debit) : '', 'n'], ['Kredit', r => r.kredit ? rp(r.kredit) : '', 'n'], ['', r => (r.tipe === 'BATAL' ? '<span class="badge bad">Pembalik</span> ' : '') + (r._first && (r.sumber === 'JURNAL' || r.sumber === 'SALDO_AWAL') && r.tipe !== 'BATAL' ? voidBtn(r.sumber, r.ref_id) : '')]], ord.flatMap(j => g[j].map((r, i) => Object.assign({}, r, { _first: i === 0, _cls: i === 0 ? '' : '' })))) + '</div>';
+    bindFilter();
+    if (canJU) {
+      const box = $('#jl'); const calc = () => { let d = 0, k = 0; box.querySelectorAll('.jr').forEach(r => { d += +r.querySelector('[name=debit]').value || 0; k += +r.querySelector('[name=kredit]').value || 0; }); $('#jd').innerHTML = 'D ' + rp(d) + ' | K ' + rp(k) + (Math.abs(d - k) < 0.005 && d > 0 ? ' <span class="badge ok">seimbang</span>' : ' <span class="badge bad">selisih ' + rp(d - k) + '</span>'); };
+      const add = () => { const d = document.createElement('div'); d.className = 'grid jr'; d.style.marginBottom = '6px'; d.innerHTML = fld('Akun', sel('kode', optAll(), '')) + inp('debit', 'Debit', 'number', 0) + inp('kredit', 'Kredit', 'number', 0); d.oninput = calc; box.appendChild(d); calc(); };
+      add(); add(); $('#al').onclick = add;
+      bind($('#tf'), async v => { v.lines = [...box.querySelectorAll('.jr')].map(r => ({ kode: r.querySelector('[name=kode]').value, debit: r.querySelector('[name=debit]').value, kredit: r.querySelector('[name=kredit]').value })); const r = await api('saveJurnalManual', v); toast('Tersimpan · ' + r.no_bukti); go('jurnal'); });
+    }
+  },
+
+  async aset() {
+    const [as, py] = await Promise.all([api('list', { sheet: 'Aset' }), api('list', { sheet: 'Penyusutan' })]);
+    const can = ACC.indexOf(S.user.role) >= 0;
+    const ao = S.akun.filter(a => a.kelompok === 'Aset' && a.saldo_normal === 'D' && a.kas !== 'Y').map(a => [a.kode, a.kode + ' · ' + a.nama]);
+    const ak = S.akun.filter(a => a.kelompok === 'Aset' && a.saldo_normal === 'K').map(a => [a.kode, a.kode + ' · ' + a.nama]);
+    const bat = {}; py.rows.forEach(r => { const b = bat[r.batch_id] || (bat[r.batch_id] = { id: r.batch_id, periode: r.periode, n: 0, total: 0, status: r.status }); b.n++; b.total += +r.jumlah; });
+    main().innerHTML = '<h2>Aset Tetap & Penyusutan</h2>' + (can ? '<div class="card noprint"><h3>Perolehan aset baru</h3><form id="tf"><div class="grid">' + inp('kode', 'Kode aset', 'text', '') + inp('nama', 'Nama aset', 'text', '', 'required') + inp('tgl_perolehan', 'Tgl perolehan', 'date', today(), 'required') + inp('harga', 'Harga perolehan', 'number', 0, 'required') + inp('residu', 'Nilai residu', 'number', 0) + inp('umur_bulan', 'Umur manfaat (bulan)', 'number', 48, 'required') + fld('Akun aset', sel('akun_aset', ao, '1-2101')) + fld('Akun akumulasi', sel('akun_akum', ak, '1-2901')) + fld('Akun beban penyusutan', sel('akun_beban', optBeban(), '8-1101')) + fld('Dibayar dari', sel('akun_kas', optKas(), '1-1103')) + '</div><br><button type="submit">Simpan Aset</button></form></div><div class="card noprint"><h3>Hitung penyusutan bulanan</h3><form id="pf" class="row">' + inp('periode', 'Periode', 'month', month()) + '<button type="submit">Generate Jurnal Penyusutan</button></form><p class="mut">Metode garis lurus; mulai bulan setelah perolehan. Periode yang sama tidak diproses dua kali.</p></div>' : '') +
+      '<div class="card"><h3>Daftar aset</h3>' + tbl([['Kode', r => esc(r.kode)], ['Nama', r => esc(r.nama)], ['Perolehan', r => r.tgl_perolehan], ['Harga', r => rp(r.harga), 'n'], ['Umur', r => r.umur_bulan + ' bln', 'n'], ['', r => stBadge(r.status === 'Aktif' ? '' : r.status) + ' ' + voidBtn('ASET', r.id, r.status)]], as.rows) + '</div><div class="card"><h3>Riwayat penyusutan</h3>' + tbl([['Periode', r => r.periode], ['Jml aset', r => r.n, 'n'], ['Total', r => rp(r.total), 'n'], ['', r => stBadge(r.status) + ' ' + voidBtn('PENYUSUTAN', r.id, r.status)]], Object.values(bat)) + '</div>';
+    if (can) { bind($('#tf'), async v => { const r = await api('saveAset', v); toast('Tersimpan · ' + r.no_bukti); go('aset'); }); bind($('#pf'), async v => { const r = await api('generatePenyusutan', v); toast(r.jumlah_aset + ' aset disusutkan · ' + r.no_bukti); go('aset'); }); }
+  },
+
+  /* ---------- laporan ---------- */
+  async bukubesar() {
+    const a = S.ba || { akun: '1-1103', dari: month() + '-01', sampai: today() };
+    const r = await api('bukuBesar', a);
+    const ro = [['Saldo awal', '', '', '', r.saldo_awal]].concat(r.rows.map(x => [x.tanggal, x.no_bukti, x.keterangan, x.debit, x.kredit, x.saldo]));
+    main().innerHTML = '<h2>Buku Kas / Buku Besar</h2><form id="ff" class="card row noprint">' + fld('Akun', sel('akun', optAll(), a.akun)) + inp('dari', 'Dari', 'date', a.dari) + inp('sampai', 'Sampai', 'date', a.sampai) + '<button type="submit">Tampilkan</button></form>' + repBar() + '<div class="card">' + printHead('Buku Besar: ' + esc(r.akun + ' ' + r.nama), a.dari + ' s/d ' + a.sampai) + tbl([['Tanggal', x => x.tanggal], ['No. bukti', x => esc(x.no_bukti)], ['Keterangan', x => esc(x.keterangan)], ['Debit', x => x.debit ? rp(x.debit) : '', 'n'], ['Kredit', x => x.kredit ? rp(x.kredit) : '', 'n'], ['Saldo', x => rp(x.saldo), 'n']], r.rows,
+      '<tr class="tot"><td colspan="3">Saldo awal ' + a.dari + '</td><td colspan="3" class="n">' + rp(r.saldo_awal) + '</td></tr><tr class="tot"><td colspan="3">Total mutasi / Saldo akhir</td><td class="n">' + rp(r.total_debit) + '</td><td class="n">' + rp(r.total_kredit) + '</td><td class="n">' + rp(r.saldo_akhir) + '</td></tr>') + '</div>';
+    bind($('#ff'), v => { S.ba = v; go('bukubesar'); }); bindCsv('buku-besar-' + r.akun, [['Tanggal', 'No bukti', 'Keterangan', 'Debit', 'Kredit', 'Saldo']].concat(ro));
+  },
+
+  async neracasaldo() {
+    const r = await api('neracaSaldo', { sampai: S.f.sampai });
+    main().innerHTML = '<h2>Neraca Saldo</h2>' + filterBar(1) + repBar() + '<div class="card">' + printHead('Neraca Saldo', 'Per ' + r.sampai) + tbl([['Kode', x => x.kode], ['Nama akun', x => esc(x.nama)], ['Debit', x => x.debit ? rp(x.debit) : '', 'n'], ['Kredit', x => x.kredit ? rp(x.kredit) : '', 'n']], r.rows, '<tr class="tot"><td colspan="2">Total ' + (r.seimbang ? '<span class="badge ok">seimbang</span>' : '<span class="badge bad">TIDAK seimbang</span>') + '</td><td class="n">' + rp(r.total_debit) + '</td><td class="n">' + rp(r.total_kredit) + '</td></tr>') + '</div>';
+    bindFilter(); bindCsv('neraca-saldo', [['Kode', 'Nama', 'Debit', 'Kredit']].concat(r.rows.map(x => [x.kode, x.nama, x.debit, x.kredit])));
+  },
+
+  async labarugi() {
+    const r = await api('labaRugi', { dari: S.f.dari, sampai: S.f.sampai });
+    const sec = (t, gs, tot) => '<tr class="tot"><td colspan="2">' + t + '</td></tr>' + gs.map(g => '<tr><td colspan="2"><b>' + esc(g.grup) + '</b></td></tr>' + g.items.map(i => '<tr><td>&nbsp;&nbsp;' + i.kode + ' ' + esc(i.nama) + '</td><td class="n">' + rp(i.jumlah) + '</td></tr>').join('') + '<tr><td>&nbsp;&nbsp;Subtotal</td><td class="n"><b>' + rp(g.total) + '</b></td></tr>').join('') + '<tr class="tot"><td>Total ' + t + '</td><td class="n">' + rp(tot) + '</td></tr>';
+    main().innerHTML = '<h2>Laporan Surplus / Defisit</h2>' + filterBar() + repBar() + '<div class="card">' + printHead('Laporan Surplus/Defisit', r.dari + ' s/d ' + r.sampai) + '<div class="tw"><table><tbody>' + sec('Pendapatan', r.pendapatan, r.total_pendapatan) + sec('Beban', r.beban, r.total_beban) + '<tr class="tot"><td>SURPLUS / (DEFISIT)</td><td class="n ' + (r.surplus < 0 ? 'neg' : '') + '">' + rp(r.surplus) + '</td></tr></tbody></table></div></div>';
+    bindFilter(); bindCsv('surplus-defisit', [['Uraian', 'Jumlah']].concat(r.pendapatan.concat(r.beban).flatMap(g => g.items.map(i => [g.grup + ' - ' + i.nama, i.jumlah]))).concat([['Surplus/Defisit', r.surplus]]));
+  },
+
+  async neraca() {
+    const r = await api('neraca', { sampai: S.f.sampai });
+    const side = gs => gs.map(g => '<tr><td colspan="2"><b>' + esc(g.grup) + '</b></td></tr>' + g.items.map(i => '<tr><td>&nbsp;&nbsp;' + esc(i.nama) + '</td><td class="n">' + rp(i.jumlah) + '</td></tr>').join('') + '<tr><td>&nbsp;&nbsp;Subtotal</td><td class="n"><b>' + rp(g.total) + '</b></td></tr>').join('');
+    main().innerHTML = '<h2>Neraca</h2>' + filterBar(1) + repBar() + '<div class="card">' + printHead('Neraca', 'Per ' + r.sampai) + '<div class="two"><div class="tw"><table><thead><tr><th colspan="2">ASET</th></tr></thead><tbody>' + side(r.aset) + '<tr class="tot"><td>TOTAL ASET</td><td class="n">' + rp(r.total_aset) + '</td></tr></tbody></table></div><div class="tw"><table><thead><tr><th colspan="2">KEWAJIBAN & ASET NETO</th></tr></thead><tbody>' + side(r.kewajiban) + side(r.ekuitas) + '<tr><td><b>Surplus/(Defisit) akumulasi</b></td><td class="n">' + rp(r.surplus_akumulasi) + '</td></tr><tr class="tot"><td>TOTAL ' + (r.seimbang ? '<span class="badge ok">seimbang</span>' : '<span class="badge bad">TIDAK seimbang</span>') + '</td><td class="n">' + rp(r.total_pasiva) + '</td></tr></tbody></table></div></div></div>';
+    bindFilter(); bindCsv('neraca', [['Aset', r.total_aset], ['Kewajiban', r.total_kewajiban], ['Ekuitas', r.total_ekuitas], ['Surplus akumulasi', r.surplus_akumulasi]]);
+  },
+
+  async aruskas() {
+    const r = await api('arusKas', { dari: S.f.dari, sampai: S.f.sampai });
+    const blk = (t, a, tot) => a.length ? '<tr><td colspan="2"><b>' + t + '</b></td></tr>' + a.map(x => '<tr><td>&nbsp;&nbsp;' + esc(x.uraian) + '</td><td class="n">' + rp(x.jumlah) + '</td></tr>').join('') + '<tr><td>&nbsp;&nbsp;Arus kas bersih ' + t.toLowerCase() + '</td><td class="n"><b>' + rp(tot) + '</b></td></tr>' : '';
+    main().innerHTML = '<h2>Laporan Arus Kas</h2>' + filterBar() + repBar() + '<div class="card">' + printHead('Laporan Arus Kas (metode langsung)', r.dari + ' s/d ' + r.sampai) + '<div class="tw"><table><tbody><tr class="tot"><td>Saldo kas & bank awal</td><td class="n">' + rp(r.saldo_awal) + '</td></tr>' + blk('Aktivitas operasi', r.operasi, r.total_operasi) + blk('Aktivitas investasi', r.investasi, r.total_investasi) + blk('Lainnya', r.lainnya, r.total_lainnya) + '<tr class="tot"><td>Kenaikan/(penurunan) kas</td><td class="n">' + rp(r.kenaikan) + '</td></tr><tr class="tot"><td>Saldo kas & bank akhir</td><td class="n">' + rp(r.saldo_akhir) + '</td></tr></tbody></table></div></div>';
+    bindFilter(); bindCsv('arus-kas', [['Uraian', 'Jumlah']].concat(r.operasi.concat(r.investasi, r.lainnya).map(x => [x.uraian, x.jumlah])));
+  },
+
+  async lpj() {
+    const r = await api('lpj', { dari: S.f.dari, sampai: S.f.sampai });
+    const s = r.setting;
+    main().innerHTML = '<h2>Laporan Pertanggungjawaban Dana BGN</h2>' + filterBar() + repBar() + '<div class="card">' + printHead('Laporan Pertanggungjawaban Penggunaan Dana Bantuan Pemerintah — SPPG', r.dari + ' s/d ' + r.sampai + '<br>Kode SPPG: ' + esc(s.kode_sppg) + ' · Mitra/Yayasan: ' + esc(s.mitra_yayasan)) +
+      '<div class="grid" style="margin-bottom:12px"><div class="kpi"><small>Porsi terdistribusi</small><b>' + rp(r.porsi) + '</b></div><div class="kpi"><small>Hari operasi</small><b>' + r.hari_operasi + '</b></div></div>' +
+      tbl([['Komponen', x => '<b>' + x.komponen + '</b>'], ['Saldo awal', x => rp(x.saldo_awal), 'n'], ['Dana diterima', x => rp(x.dana), 'n'], ['Hak (porsi × tarif)', x => rp(x.hak), 'n'], ['Selisih terima vs hak', x => '<span class="' + (x.selisih_dana < 0 ? 'neg' : '') + '">' + rp(x.selisih_dana) + '</span>', 'n'], ['Realisasi', x => rp(x.beban), 'n'], ['Biaya/porsi', x => rp(x.per_porsi), 'n'], ['Sisa dana', x => '<b class="' + (x.sisa < 0 ? 'neg' : '') + '">' + rp(x.sisa) + '</b>', 'n']], r.komponen) +
+      '<h3 style="margin-top:14px">Rincian realisasi</h3>' + tbl([['Komponen', x => x.komponen], ['Akun', x => esc(x.kode + ' ' + x.nama)], ['Jumlah', x => rp(x.jumlah), 'n']], r.detail) +
+      '<div class="sign"><div>Dibuat oleh<br><b>' + esc(s.akuntan) + '</b><br>Akuntan SPPG</div><div>Diperiksa<br><b>' + esc(s.ahli_gizi) + '</b><br>Ahli Gizi</div><div>Mengetahui<br><b>' + esc(s.kepala_sppg) + '</b><br>Kepala SPPG</div><div>Menyetujui<br><b>' + esc(s.mitra_yayasan) + '</b><br>Mitra/Yayasan</div></div></div>';
+    bindFilter(); bindCsv('lpj-bgn', [['Komponen', 'Saldo awal', 'Dana', 'Hak', 'Realisasi', 'Sisa']].concat(r.komponen.map(x => [x.komponen, x.saldo_awal, x.dana, x.hak, x.beban, x.sisa])));
+  },
+
+  async rhutang() {
+    const r = await api('hutang');
+    main().innerHTML = '<h2>Umur Hutang Usaha</h2>' + repBar() + '<div class="card">' + printHead('Umur Hutang Usaha', 'Per ' + r.per) + '<div class="grid" style="margin-bottom:12px">' + Object.keys(r.bucket).map(k => '<div class="kpi"><small>' + k + '</small><b>' + rp(r.bucket[k]) + '</b></div>').join('') + '<div class="kpi"><small>Total hutang</small><b>' + rp(r.total) + '</b></div></div>' + tbl([['Supplier', x => esc(x.supplier_nama)], ['Faktur', x => esc(x.no_faktur)], ['Tgl', x => x.tanggal], ['Jatuh tempo', x => x.jatuh_tempo], ['Lewat', x => x.lewat_hari + ' hr', 'n'], ['Sisa', x => rp(x.sisa), 'n'], ['Umur', x => '<span class="badge ' + (x.lewat_hari > 0 ? 'warn' : '') + '">' + x.bucket + '</span>']], r.rows) + '</div>';
+    bindCsv('umur-hutang', [['Supplier', 'Faktur', 'Jatuh tempo', 'Sisa']].concat(r.rows.map(x => [x.supplier_nama, x.no_faktur, x.jatuh_tempo, x.sisa])));
+  },
+
+  async rporsi() {
+    const r = await api('rekapPorsi', { dari: S.f.dari, sampai: S.f.sampai });
+    main().innerHTML = '<h2>Rekap Porsi</h2>' + filterBar() + repBar() + '<div class="card">' + printHead('Rekap Porsi Terdistribusi', r.dari + ' s/d ' + r.sampai) + '<div class="grid" style="margin-bottom:12px"><div class="kpi"><small>Total porsi</small><b>' + rp(r.total) + '</b></div><div class="kpi"><small>Hari operasi</small><b>' + r.hari + '</b></div><div class="kpi"><small>Rata-rata/hari</small><b>' + rp(r.hari ? Math.round(r.total / r.hari) : 0) + '</b></div></div><div class="two">' + tbl([['Kategori', x => esc(x.kategori)], ['Porsi', x => rp(x.jumlah), 'n']], r.per_kategori) + tbl([['Tanggal', x => x.tanggal], ['Porsi', x => rp(x.jumlah), 'n']], r.per_tanggal) + '</div></div>';
+    bindFilter(); bindCsv('rekap-porsi', [['Tanggal', 'Porsi']].concat(r.per_tanggal.map(x => [x.tanggal, x.jumlah])));
+  },
+
+  /* ---------- master & admin ---------- */
+  supplier: () => master({ sheet: 'Supplier', save: 'saveSupplier', title: 'Supplier / Mitra Pemasok', fields: [['nama', 'Nama', 'text'], ['kategori', 'Kategori (sayur, daging, dll.)', 'text'], ['kontak', 'Kontak', 'text'], ['alamat', 'Alamat', 'text'], ['npwp', 'NPWP', 'text'], ['rekening', 'No. rekening', 'text'], ['aktif', 'Status', ['Y', 'N']]], cols: [['Nama', r => esc(r.nama)], ['Kategori', r => esc(r.kategori)], ['Kontak', r => esc(r.kontak)], ['Aktif', r => r.aktif]] }),
+  relawan: () => master({ sheet: 'Relawan', save: 'saveRelawan', title: 'Relawan & Tenaga Dapur', fields: [['nama', 'Nama', 'text'], ['posisi', 'Posisi (juru masak, packing, dll.)', 'text'], ['tarif_harian', 'Tarif harian', 'number'], ['rekening', 'No. rekening', 'text'], ['aktif', 'Status', ['Y', 'N']]], cols: [['Nama', r => esc(r.nama)], ['Posisi', r => esc(r.posisi)], ['Tarif/hari', r => rp(r.tarif_harian), 'n'], ['Aktif', r => r.aktif]] }),
+  tarif: () => master({ sheet: 'Tarif', save: 'saveTarif', title: 'Tarif Dana per Porsi', note: 'Tarif mengikuti petunjuk teknis BGN & surat penetapan SPPG. Untuk perubahan tarif, tambahkan baris baru dengan tanggal berlaku baru (jangan menimpa riwayat). Insentif fasilitas flat Rp6 juta/hari sebelum 5 Okt 2026 diatur di Pengaturan.', fields: [['kategori', 'Kategori penerima', 'text'], ['bahan', 'Bahan baku / porsi', 'number'], ['operasional', 'Operasional / porsi', 'number'], ['insentif', 'Insentif fasilitas / porsi', 'number'], ['berlaku_mulai', 'Berlaku mulai', 'date'], ['aktif', 'Status', ['Y', 'N']]], cols: [['Kategori', r => esc(r.kategori)], ['Bahan', r => rp(r.bahan), 'n'], ['Operasional', r => rp(r.operasional), 'n'], ['Insentif', r => rp(r.insentif), 'n'], ['Berlaku', r => r.berlaku_mulai], ['Aktif', r => r.aktif]] }),
+  akun: () => master({ sheet: 'Akun', save: 'saveAkun', key: 'kode', title: 'Daftar Akun (COA)', after: async () => { S.akun = await api('daftarAkun'); }, fields: [['kode', 'Kode (X-XXXX)', 'text'], ['nama', 'Nama akun', 'text'], ['kelompok', 'Kelompok (hanya akun baru)', ['Aset', 'Kewajiban', 'Ekuitas', 'Pendapatan', 'Beban']], ['grup', 'Grup laporan', 'text'], ['komponen', 'Komponen dana', ['', 'Bahan Baku', 'Operasional', 'Insentif']], ['kas', 'Akun kas/bank?', ['N', 'Y']], ['aktif', 'Status', ['Y', 'N']]], cols: [['Kode', r => r.kode], ['Nama', r => esc(r.nama)], ['Kelompok', r => r.kelompok], ['Grup', r => esc(r.grup)], ['Komponen', r => esc(r.komponen)], ['Kas', r => r.kas], ['Aktif', r => r.aktif]] }),
+
+  async users() {
+    const u = (await api('list', { sheet: 'Users' })).rows;
+    main().innerHTML = '<h2>Pengguna</h2><div class="card"><h3>Tambah / ubah pengguna</h3><form id="tf"><div class="grid">' + inp('username', 'Username', 'text', '', 'required') + inp('nama', 'Nama lengkap', 'text', '') + fld('Peran', sel('role', ['Admin', 'Akuntan', 'Operator', 'Pimpinan'], 'Operator')) + inp('pin', 'PIN awal (6-8 digit, hanya akun baru)', 'password', '') + fld('Status', sel('aktif', ['Y', 'N'], 'Y')) + '</div><p class="mut">Admin: semua akses · Akuntan: input, pembatalan, jurnal, laporan · Operator: input belanja/biaya/honor/porsi · Pimpinan: hanya melihat.</p><button type="submit">Simpan</button></form></div><div class="card">' + tbl([['Username', r => esc(r.username)], ['Nama', r => esc(r.nama)], ['Peran', r => r.role], ['Aktif', r => r.aktif], ['', r => '<button class="sec sm" data-rp="' + esc(r.username) + '">Reset PIN</button>']], u) + '</div>';
+    bind($('#tf'), async v => { await api('saveUser', v); toast('Tersimpan'); go('users'); });
+    document.querySelectorAll('[data-rp]').forEach(b => b.onclick = async () => { const p = prompt('PIN baru untuk ' + b.dataset.rp + ' (6-8 digit):'); if (!p) return; try { await api('resetPin', { username: b.dataset.rp, pin: p }); toast('PIN direset'); } catch (e) { toast(e.message, true); } });
+  },
+
+  async pengaturan() {
+    const s = await api('getPengaturan');
+    const T = (k, l, t) => inp(k, l, t || 'text', s[k]);
+    main().innerHTML = '<h2>Pengaturan</h2><form id="tf" class="card"><h3>Identitas SPPG</h3><div class="grid">' + T('nama_sppg', 'Nama SPPG') + T('kode_sppg', 'Kode SPPG') + T('alamat', 'Alamat') + T('mitra_yayasan', 'Mitra / Yayasan') + T('kepala_sppg', 'Kepala SPPG') + T('akuntan', 'Akuntan SPPG') + T('ahli_gizi', 'Ahli Gizi') + T('kuota_porsi', 'Kuota porsi / hari', 'number') + '</div><h3 style="margin-top:14px">Aturan keuangan</h3><div class="grid">' + T('kunci_sampai', 'Kunci transaksi s/d tanggal', 'date') + T('insentif_per_porsi_mulai', 'Insentif per porsi berlaku mulai', 'date') + T('insentif_flat_harian', 'Insentif flat/hari (sebelum tanggal di atas)', 'number') + '</div><p class="mut">Kunci periode: setelah laporan bulan tertentu dilaporkan ke BGN, isi tanggal akhir bulan tersebut agar transaksi lama tidak bisa diubah/dibatalkan.</p><h3>Pemetaan akun otomatis</h3><div class="grid">' + fld('Akun dana — Bahan Baku', sel('akun_dana_bahan', optAll(), s.akun_dana_bahan)) + fld('Akun dana — Operasional', sel('akun_dana_ops', optAll(), s.akun_dana_ops)) + fld('Akun dana — Insentif', sel('akun_dana_insentif', optAll(), s.akun_dana_insentif)) + fld('Akun hutang usaha', sel('akun_hutang', optAll(), s.akun_hutang)) + fld('Akun hutang pajak', sel('akun_hutang_pajak', optAll(), s.akun_hutang_pajak)) + fld('Akun honor relawan', sel('akun_gaji', optAll(), s.akun_gaji)) + '</div><br><button type="submit">Simpan Pengaturan</button></form>';
+    bind($('#tf'), async v => { S.setting = await api('savePengaturan', { values: v }); buildNav(); toast('Pengaturan tersimpan'); });
+  },
+
+  async audit() {
+    const r = (await api('list', { sheet: 'Audit', limit: 500 })).rows;
+    main().innerHTML = '<h2>Jejak Audit</h2><div class="card">' + tbl([['Waktu', x => x.ts.replace('T', ' ')], ['User', x => esc(x.user)], ['Aksi', x => esc(x.aksi)], ['Ref', x => esc(x.ref_id)], ['Detail', x => esc(x.detail)]], r) + '</div>';
+  }
+};
+
+async function master(c) {
+  const rows = (await api('list', { sheet: c.sheet })).rows; const key = c.key || 'id';
+  const fh = (v) => c.fields.map(f => Array.isArray(f[2]) ? fld(f[1], sel(f[0], f[2], v ? v[f[0]] : f[2][0])) : inp(f[0], f[1], f[2], v ? v[f[0]] : '')).join('');
+  main().innerHTML = '<h2>' + c.title + '</h2>' + (c.note ? '<div class="alert">' + c.note + '</div>' : '') + '<div class="card"><h3 id="mt">Tambah baru</h3><form id="tf"><input type="hidden" name="id"><div class="grid">' + fh() + '</div><br><button type="submit">Simpan</button> <button type="button" class="sec" id="mr">Kosongkan</button></form></div><div class="card">' + tbl(c.cols.concat([['', r => '<button class="sec sm" data-e="' + esc(r[key]) + (c.sheet === 'Tarif' ? '|' + esc(r.id) : '') + '">Ubah</button>']]), rows) + '</div>';
+  const f = $('#tf');
+  document.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { const r = rows.find(x => String(x[key]) === b.dataset.e.split('|')[0] && (c.sheet !== 'Tarif' || x.id === b.dataset.e.split('|')[1])); c.fields.forEach(x => { if (f[x[0]]) f[x[0]].value = r[x[0]]; }); f.elements['id'].value = r.id || ''; $('#mt').textContent = 'Ubah data'; window.scrollTo(0, 0); });
+  $('#mr').onclick = () => go(S.cur);
+  bind(f, async v => { await api(c.save, v); if (c.after) await c.after(); toast('Tersimpan'); go(S.cur); });
+}
+
+/* ---------- start ---------- */
+(async () => {
+  try {
+    const x = JSON.parse(sessionStorage.getItem('siak') || 'null');
+    if (x && x.t) { S.token = x.t; S.user = x.u; await boot(); }
+  } catch (e) { logout(true); }
+})();
+</script>
+</body>
+</html>
